@@ -3,7 +3,6 @@ import "dotenv/config";
 
 import { randomBytes } from "node:crypto";
 import type { RequestHandler } from "express";
-import { rateLimit } from "express-rate-limit";
 import { doubleCsrf } from "csrf-csrf";
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -26,17 +25,6 @@ const csrfTokenCookieName = isProduction
   ? "__Host-siempati-csrf-token"
   : "siempati-csrf-token";
 
-// Rate limiter untuk seluruh API.
-export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 200,
-  standardHeaders: "draft-8",
-  legacyHeaders: false,
-  message: {
-    error: "TOO_MANY_REQUESTS",
-    message: "Terlalu banyak request. Coba lagi nanti.",
-  },
-});
 
 // Membuat identitas acak untuk browser sebelum login.
 // Identitas ini digunakan sebagai pengikat token CSRF.

@@ -1,7 +1,7 @@
 
 import { z } from "zod";
 
-export const registerSchema = z
+const registerSchema = z
   .object({
     name: z
       .string()
@@ -22,4 +22,23 @@ export const registerSchema = z
   })
   .strict();
 
+
+const loginSchema = z
+  .object({
+    email: z
+      .string()
+      .email("Format email tidak valid.")
+      .max(254, "Email terlalu panjang."),
+
+    password: z
+      .string()
+      .min(8, "Password minimal 8 karakter.")
+      .max(128, "Password maksimal 128 karakter."),
+  })
+  .strict();
+
+export default {registerSchema, loginSchema};
+
+
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;

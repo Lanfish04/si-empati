@@ -5,13 +5,13 @@ import express, {type ErrorRequestHandler,} from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-
+import router from "./routes/index.js";
+import { apiLimiter } from "./config/security/limiter.js";
 import {
-  apiLimiter,
   csrfProtection,
   ensureCsrfBindingCookie,
   generateCsrfToken,
-} from "./config/security.js";
+} from "./config/security/security.js";
 
 const app = express();
 
@@ -50,6 +50,8 @@ app.use(
   })
 );
 
+
+
 // 3. Batasi request API.
 app.use("/api", apiLimiter);
 
@@ -81,6 +83,7 @@ app.get("/api/csrf-token", (req, res) => {
 // 8. Request yang mengubah data harus lolos CSRF.
 app.use("/api", csrfProtection);
 
+app.use("/api", router);
 // Nanti, mount route autentikasi di sini.
 // Contoh: app.use("/api/auth", authRouter);
 
@@ -91,6 +94,7 @@ app.use("/api", (_req, res) => {
     message: "Endpoint API tidak ditemukan.",
   });
 });
+
 
 // 10. Error handler terakhir.
 const errorHandler: ErrorRequestHandler = (err, _req, res, next) => {
