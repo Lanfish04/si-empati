@@ -1,4 +1,5 @@
 import argon2 from "argon2";
+import { createHash } from "node:crypto";
 import  {prisma} from "../config/client";
 import type { RegisterInput, LoginInput } from "../schemas/authSchema";
 
@@ -48,4 +49,17 @@ async function loginUser(input : LoginInput) {
     }
 }
 
-export { registerUser, loginUser };
+
+async function revokeSession(sessionToken: string) {
+  const tokenHash = createHash("sha256")
+    .update(sessionToken)
+    .digest("hex");
+
+  await prisma.session.deleteMany({
+    where: {
+      tokenHash,
+    },
+  });
+}
+
+export { registerUser, loginUser, revokeSession };

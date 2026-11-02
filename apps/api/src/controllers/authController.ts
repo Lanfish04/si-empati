@@ -1,5 +1,5 @@
 import {RequestHandler} from 'express';
-import {registerUser, loginUser} from '../services/authService';
+import {registerUser, loginUser, revokeSession} from '../services/authService';
 import {registerSchema, loginSchema} from '../schemas/authSchema';
 import {createSession} from '../utils/session';
 
@@ -112,9 +112,39 @@ const getCurrentUser: RequestHandler = (req, res) => {
   });
 };
 
+const LogoutController: RequestHandler = async (req, res, next) => {
+  try {
+    const sessionToken = req.cookies?.si_empati_session;
+ 
+    if (!sessionToken) {
+      return res.status(401).json({
+        error: "UNAUTHENTICATED",
+        message: "Session tidak ditemukan.",
+      });
+    }
+
+  await revokeSession(sessionToken);
+
+  res.clearCookie("si_empati_session", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  });
+
+    return res.status(200).json({
+      message: "Logout berhasil.",
+    });
+  }
+
+  catch(error) {
+    return next(error);
+  }
+}
 
 export { 
   RegisterController,
   LoginController,
-  getCurrentUser
+  getCurrentUser,
+  LogoutController
 };  
