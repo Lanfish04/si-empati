@@ -6,12 +6,12 @@ import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import router from "./routes/index.js";
-import { apiLimiter } from "./config/security/limiter.js";
+import { apiLimiter } from "./utils/security/limiter.js";
 import {
   csrfProtection,
   ensureCsrfBindingCookie,
   generateCsrfToken,
-} from "./config/security/security.js";
+} from "./utils/security/security.js";
 
 const app = express();
 
