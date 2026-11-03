@@ -1,10 +1,10 @@
 
 import type { RequestHandler } from "express";
 import { createHash } from "node:crypto";
-
+import type { UserRole } from "../types/auth.js";
 import { prisma } from "../config/client.js";
 
-export const requireAuth: RequestHandler = async (
+const requireAuth: RequestHandler = async (
   req,
   res,
   next
@@ -60,3 +60,32 @@ export const requireAuth: RequestHandler = async (
     return next(error);
   }
 };
+
+
+
+function requireRole(...allowedRoles: UserRole[] ): RequestHandler {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({
+        error: "UNAUTHENTICATED",
+        message: "Silakan login terlebih dahulu.",
+      });
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        error: "FORBIDDEN",
+        message: "Kamu tidak memiliki izin untuk mengakses.",
+      });
+    }
+
+    return next();
+  };
+}
+
+
+
+export default {
+requireAuth,
+requireRole,
+}
