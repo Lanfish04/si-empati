@@ -19,6 +19,12 @@ enum UserRole {
   ADMIN
 }
 
+enum ScenarioStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   name         String
@@ -27,6 +33,7 @@ model User {
   role         UserRole @default(STUDENT)
 
   sessions Session[]
+  createdScenarios Scenario[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -42,4 +49,68 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, expiresAt])
+}
+
+model Scenario {
+  id          String         @id @default(cuid())
+  title       String
+  slug        String         @unique
+  description String
+  category    String
+  status      ScenarioStatus @default(DRAFT)
+
+  createdById String         @db.Uuid
+  
+  createdBy   User           @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  steps       ScenarioStep[]
+  responses   ScenarioResponse[]
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  publishedAt DateTime?
+
+  @@index([status])
+  @@index([createdById])
+}
+
+model ScenarioStep {
+  id          String   @id @default(cuid())
+  scenarioId  String   
+  order       Int
+  title       String
+  content     String
+  
+
+  scenario Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+
+  responses  ScenarioResponse[] 
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([scenarioId, order])
+
+}
+
+model ScenarioResponse {
+  id              String   @id @default(cuid())
+  stepId          String  
+  order           Int
+  text            String
+
+  consequenceText  String
+  learningFeedback String
+  nextStepId      String?
+
+  step            ScenarioStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  nextStep        ScenarioStep? @relation("OptionNextStep",fields: [nextStepId], references: [id], onDelete: SetNull)
+  previousResponses  ScenarioResponse[] @relation("OptionNextStep")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([stepId, order])
+  @@index([stepId])
+  @@index([nextStepId])
+
 }
