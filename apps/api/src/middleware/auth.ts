@@ -85,7 +85,7 @@ function requireRole(...allowedRoles: UserRole[] ): RequestHandler {
 
 
 
-export default {
+export {
 requireAuth,
 requireRole,
-}
+};

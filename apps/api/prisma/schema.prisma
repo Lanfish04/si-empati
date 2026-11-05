@@ -63,7 +63,6 @@ model Scenario {
   
   createdBy   User           @relation(fields: [createdById], references: [id], onDelete: Restrict)
   steps       ScenarioStep[]
-  responses   ScenarioResponse[]
 
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
@@ -100,17 +99,13 @@ model ScenarioResponse {
 
   consequenceText  String
   learningFeedback String
-  nextStepId      String?
 
   step            ScenarioStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
-  nextStep        ScenarioStep? @relation("OptionNextStep",fields: [nextStepId], references: [id], onDelete: SetNull)
-  previousResponses  ScenarioResponse[] @relation("OptionNextStep")
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   @@unique([stepId, order])
   @@index([stepId])
-  @@index([nextStepId])
-
+  
 }
