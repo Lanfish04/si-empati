@@ -1,6 +1,6 @@
 import express, {type Router,} from 'express';
 import authRouter from './auth';
-
+import scenarioRouter from './scenario';
 
 const router:Router = express.Router();
 
@@ -14,7 +14,12 @@ const defaultRoute: RouteConfig[] = [
     path:"/auth",
     router:authRouter, 
 
+},
+{
+    path: "/scenarios",
+    router: scenarioRouter,
 }
+
 ];
 
 defaultRoute.forEach((route) => {

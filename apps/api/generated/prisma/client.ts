@@ -51,3 +51,18 @@ export type User = Prisma.UserModel
  * 
  */
 export type Session = Prisma.SessionModel
+/**
+ * Model Scenario
+ * 
+ */
+export type Scenario = Prisma.ScenarioModel
+/**
+ * Model ScenarioStep
+ * 
+ */
+export type ScenarioStep = Prisma.ScenarioStepModel
+/**
+ * Model ScenarioResponse
+ * 
+ */
+export type ScenarioResponse = Prisma.ScenarioResponseModel

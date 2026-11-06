@@ -10,4 +10,7 @@
  */
 export type * from './models/User.ts'
 export type * from './models/Session.ts'
+export type * from './models/Scenario.ts'
+export type * from './models/ScenarioStep.ts'
+export type * from './models/ScenarioResponse.ts'
 export type * from './commonInputTypes.ts'
