@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
 import { createScenario } from "../services/scenarioService";
-import { scenarioSchema } from "../schemas/scenarioSchema";
+import { createScenarioSchema } from "../schemas/scenarioSchema";
 
 
 function isUniqueConstraintError(error: unknown): boolean {
@@ -13,7 +13,7 @@ function isUniqueConstraintError(error: unknown): boolean {
 }
 
 const CreateScenarioController: RequestHandler = async (req, res, next) => {
-  const validation = scenarioSchema.safeParse(req.body);
+  const validation = createScenarioSchema.safeParse(req.body);
 
 if (!validation.success) {
     return res.status(400).json({
@@ -36,7 +36,6 @@ if (!validation.success) {
     }
 
     const scenario = await createScenario(validation.data, createdById);
-    
     if (!scenario) {
       return res.status(409).json({
         error: "SCENARIO_ALREADY_EXISTS",
@@ -50,8 +49,6 @@ if (!validation.success) {
         scenario
       },
     });
-
-
 
 } catch (error) {
     if (isUniqueConstraintError(error)) {
