@@ -127,16 +127,67 @@ async function getAllScenarios({
 
 
 
-async function getScenarioById(id: string, createdById: string) {
+async function getScenarioById(scenarioId: string) {
     const scenario = await prisma.scenario.findUnique({
         where: {
-            id: id,
-            createdById: createdById,
+            id: scenarioId,
         },
-    });
-    
-    return scenario;
+        select: {
+            id: true,
+            title: true,
+            description: true,
+            slug: true,
+            category: true,
+            status: true,
+            createdAt: true,
+            updatedAt: true,
+            publishedAt: true,
+            
+            createdBy: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+
+      steps: {
+        orderBy: {
+          order: "asc",
+        },
+        select: {
+          id: true,
+          order: true,
+          title: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+
+          responses: {
+            orderBy: {
+              order: "asc",
+            },
+            select: {
+              id: true,
+              order: true,
+              text: true,
+              consequenceText: true,
+              learningFeedback: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!scenario) {
+    throw new ScenarioNotFoundError();
+  }
+
+  return scenario;
 }
+ 
 
 async function createScenario(input: ScenarioInput, createdById: string) {
     const existingScenario = await prisma.scenario.findFirst({
@@ -146,7 +197,7 @@ async function createScenario(input: ScenarioInput, createdById: string) {
         }
     });
     if (existingScenario) {
-        return null;
+        throw new ScenarioNotFoundError();
     }
 
     const scenario = await prisma.scenario.create({
@@ -174,24 +225,68 @@ async function createScenario(input: ScenarioInput, createdById: string) {
 }
 
 
-async function updateScenario(scenarioId: string, input: ScenarioInput, createdById: string) {
-    const scenario = await prisma.scenario.update({
+async function updateScenario(scenarioId: string, input: ScenarioInput) {
+    const scenario = await prisma.scenario.updateMany({
         where: {
-            id: id,
-            createdById: createdById,
+            id: scenarioId,
+            status : "DRAFT"
         },
-        data: {
-            title: input.title,
-            description: input.description,
-            category: input.category,
-        }
+        data: input,
     });
 
-    if (!scenario) {
-        return null;
+
+    if (scenario.count === 0) {
+    const existingScenario = await prisma.scenario.findUnique({
+      where: {
+        id: scenarioId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!existingScenario) {
+      throw new ScenarioNotFoundError();
     }
+
+    throw new ScenarioNotDraftError("diperbarui");
+  }
 
     return scenario;
 }
+
+
+export async function deleteScenario(scenarioId: string) {
+  const result = await prisma.scenario.deleteMany({
+    where: {
+      id: scenarioId,
+      status: "DRAFT",
+    },
+  });
+
+  if (result.count === 0) {
+    const existingScenario = await prisma.scenario.findUnique({
+      where: {
+        id: scenarioId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!existingScenario) {
+      throw new ScenarioNotFoundError();
+    }
+
+    throw new ScenarioNotDraftError("dihapus");
+  }
+
+  return {
+    id: scenarioId,
+  };
+}
+
+  
+
 
 export { createScenario, updateScenario };
