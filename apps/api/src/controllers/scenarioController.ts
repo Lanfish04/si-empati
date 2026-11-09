@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
-import { createScenario } from "../services/scenarioService";
-import { createScenarioSchema } from "../schemas/scenarioSchema";
+import { getAllScenarios, getScenarioById, createScenario, updateScenario, deleteScenario } from "../services/scenarioService";
+import { createScenarioSchema,  } from "../schemas/scenarioSchema";
 
 
 function isUniqueConstraintError(error: unknown): boolean {
@@ -11,6 +11,19 @@ function isUniqueConstraintError(error: unknown): boolean {
     error.code === "P2002"
   );
 }
+
+
+const GetAllScenariosController: RequestHandler = async (req, res, next) => {
+  try {
+    const scenarios = await getAllScenarios();
+    return res.json({
+      message: "Scenarios retrieved successfully.",
+      data: scenarios,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 const CreateScenarioController: RequestHandler = async (req, res, next) => {
   const validation = createScenarioSchema.safeParse(req.body);

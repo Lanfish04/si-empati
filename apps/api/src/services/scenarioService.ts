@@ -256,7 +256,7 @@ async function updateScenario(scenarioId: string, input: ScenarioInput) {
 }
 
 
-export async function deleteScenario(scenarioId: string) {
+async function deleteScenario(scenarioId: string) {
   const result = await prisma.scenario.deleteMany({
     where: {
       id: scenarioId,
@@ -289,4 +289,4 @@ export async function deleteScenario(scenarioId: string) {
   
 
 
-export { createScenario, updateScenario };
+export { getAllScenarios, getScenarioById, createScenario, updateScenario, deleteScenario };
