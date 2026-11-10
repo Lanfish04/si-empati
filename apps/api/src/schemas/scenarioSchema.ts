@@ -12,6 +12,22 @@ const scenarioSlugSchema = z
     "Slug hanya boleh berisi huruf kecil, angka, dan tanda hubung."
   );
 
+
+export const getAllScenariosQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
+    status: z
+      .enum(["DRAFT", "PUBLISHED", "ARCHIVED"])
+      .optional(),
+
+    category: z.string().trim().min(1).max(50).optional(),
+    search: z.string().trim().min(1).max(120).optional(),
+  })
+  .strict();
+
+
+
 const createScenarioSchema = z.object({
     title: z.string().trim().min(4, "Judul minimal 4 karakter.").max(80, "Judul maksimal 80 karakter."),
     description: z.string().trim().min(4, "Deskripsi minimal 4 karakter.").max(500, "Deskripsi maksimal 500 karakter."),

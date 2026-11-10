@@ -1,20 +1,7 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../config/client.js";
 import { ScenarioInput } from "../schemas/scenarioSchema.js";
-
-export class ScenarioNotFoundError extends Error {
-  constructor() {
-    super("Scenario tidak ditemukan.");
-    this.name = "ScenarioNotFoundError";
-  }
-}
-
-export class ScenarioNotDraftError extends Error {
-  constructor(action: "diperbarui" | "dihapus") {
-    super(`Scenario hanya dapat ${action} ketika berstatus DRAFT.`);
-    this.name = "ScenarioNotDraftError";
-  }
-}
+import { ScenarioNotDraftError, ScenarioNotFoundError, ScenarioAlreadyExistsError} from "../utils/error/scenarioError.js";
 
 type ScenarioStatusFilter = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
@@ -206,6 +193,7 @@ async function createScenario(input: ScenarioInput, createdById: string) {
             description: input.description,
             category: input.category,
             createdById: createdById,
+            slug : input.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, ''),
         },
         select :{
             id: true,
@@ -221,6 +209,11 @@ async function createScenario(input: ScenarioInput, createdById: string) {
         }
 
 });
+
+if (!scenario) {
+    throw new ScenarioAlreadyExistsError();
+}
+
    return scenario;
 }
 

@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
 import { getAllScenarios, getScenarioById, createScenario, updateScenario, deleteScenario } from "../services/scenarioService";
-import { createScenarioSchema,  } from "../schemas/scenarioSchema";
+import { getAllScenariosQuerySchema, createScenarioSchema, } from "../schemas/scenarioSchema";
 
 
 function isUniqueConstraintError(error: unknown): boolean {
@@ -13,17 +13,35 @@ function isUniqueConstraintError(error: unknown): boolean {
 }
 
 
-const GetAllScenariosController: RequestHandler = async (req, res, next) => {
+// GET ALL SCENARIOS
+export const getAllScenariosController: RequestHandler = async (req, res, next) => {
   try {
-    const scenarios = await getAllScenarios();
-    return res.json({
-      message: "Scenarios retrieved successfully.",
-      data: scenarios,
+  
+    const query = getAllScenariosQuerySchema.parse(req.query);
+    const result = await getAllScenarios(query);
+    res.status(200).json({
+      message: "Daftar scenario berhasil diambil.",
+      data: result.data,
+      pagination: result.pagination,
     });
   } catch (error) {
     next(error);
   }
 };
+
+const GetScenarioByIdController: RequestHandler = async (req, res, next) => {
+  try{
+  const scenarioId = req.params;
+  const scenario = await getScenarioById(scenarioId);
+  res.status(200).json({
+    message: "Scenario berhasil diambil.",
+    data: scenario,
+  });
+  
+  }catch(error){
+    next(error);
+  }
+}
 
 const CreateScenarioController: RequestHandler = async (req, res, next) => {
   const validation = createScenarioSchema.safeParse(req.body);
@@ -49,13 +67,6 @@ if (!validation.success) {
     }
 
     const scenario = await createScenario(validation.data, createdById);
-    if (!scenario) {
-      return res.status(409).json({
-        error: "SCENARIO_ALREADY_EXISTS",
-        message: "Scenario telah terdaftar.",
-      });
-    }
-
     return res.status(201).json({
       message: "Scenario berhasil dibuat.",
       data: {
@@ -64,16 +75,8 @@ if (!validation.success) {
     });
 
 } catch (error) {
-    if (isUniqueConstraintError(error)) {
-      return res.status(409).json({
-        error: "SCENARIO_ALREADY_EXISTS",
-        message: "Scenario telah terdaftar.",
-      });
-    }   
-
     next(error);
 }
-
 }
 
 

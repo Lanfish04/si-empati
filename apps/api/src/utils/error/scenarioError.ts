@@ -11,6 +11,16 @@ export class ScenarioNotFoundError extends AppError {
   }
 }
 
+export class ScenarioAlreadyExistsError extends AppError {
+  constructor() {
+    super(
+      409,
+      "SCENARIO_ALREADY_EXISTS",
+      "Scenario telah terdaftar."
+    );
+  }
+}
+
 export class ScenarioNotDraftError extends AppError {
   constructor(action: "diperbarui" | "dihapus") {
     super(
