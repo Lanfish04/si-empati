@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
 import { getAllScenarios, getScenarioById, createScenario, updateScenario, deleteScenario } from "../services/scenarioService";
-import { getAllScenariosQuerySchema, createScenarioSchema, } from "../schemas/scenarioSchema";
+import { getAllScenariosQuerySchema, createScenarioSchema, updateScenarioSchema } from "../schemas/scenarioSchema";
 
 
 function isUniqueConstraintError(error: unknown): boolean {
@@ -14,7 +14,7 @@ function isUniqueConstraintError(error: unknown): boolean {
 
 
 // GET ALL SCENARIOS
-export const getAllScenariosController: RequestHandler = async (req, res, next) => {
+const GetAllScenariosController: RequestHandler = async (req, res, next) => {
   try {
   
     const query = getAllScenariosQuerySchema.parse(req.query);
@@ -79,6 +79,28 @@ if (!validation.success) {
 }
 }
 
+const UpdateScenarioController: RequestHandler = async (req, res, next) => {
+   try {
+    // 1. Validasi request body
+    const input = updateScenarioSchema.parse(req.body);
 
+    // 2. Ambil ID dari URL parameter
+    const { scenarioId } = req.params;
 
-export { CreateScenarioController };
+    // 3. Panggil service
+    const scenario = await updateScenario(
+      scenarioId,
+      input
+    );
+
+    // 4. Kirim response
+    res.status(200).json({
+      message: "Scenario berhasil diperbarui.",
+      data: scenario,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { CreateScenarioController, UpdateScenarioController, GetScenarioByIdController, GetAllScenariosController };
